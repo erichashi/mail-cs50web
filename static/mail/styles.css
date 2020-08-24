@@ -1,0 +1,59 @@
+body{
+    font-family: Nunito;
+    color: #100386;
+}
+body .container{
+    margin-top: 20px;
+}
+body .container h2{
+    color: orange;
+}
+body .container h3{
+    color: hotpink;
+}
+
+
+
+textarea {
+    min-height: 400px;
+}
+
+.email {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 6px solid rgb(147, 186, 199);
+    border-top: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.email strong{
+    font-weight: 500;
+    color: hotpink;
+}
+
+.email:hover{
+    background-color: #add8e6;
+    color: white;
+
+}
+
+
+.time {
+    float: right;
+    opacity: 0.6;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+body #single-emails-view .info strong {
+    margin: 1px;
+    color: hotpink;
+}
+
+body #single-emails-view button {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
