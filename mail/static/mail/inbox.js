@@ -11,27 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
-// Send Mail:  2/3
-// - When a user submits the email composition form, add JavaScript code to actually send the email. DONE!!
-// -You’ll likely want to make a POST request to /emails, passing in values for recipients, subject, and body. DONE!!
-// -Once the email has been sent, load the user’s sent mailbox. NOPE!
 
-// Mailbox: FULL!! 1/1
-
-// View Email: FUUULLL!! 1/1
-
-// Archive and Unarchive: 2/6
-// -Allow users to archive and unarchive emails that they have received. DONE!!
-// -When viewing an Inbox email, the user should be presented with a button that lets them archive the email. DONE! SEE BETTER
-// -When viewing an Archive email, the user should be presented with a button that lets them unarchive the email. SEE BETTER
-// -This requirement does not apply to emails in the Sent mailbox. AHHHHH NOOOPE!
-// -Recall that you can send a PUT request to /emails/<email_id> to mark an email as archived or unarchived. //DONE!!
-// Once an email has been archived or unarchived, load the user’s inbox. NOPE!
-
-// Reply: DONE!!! 1/1
-
-
-//TODO when compouse email, open sent mailbox
 function compose_email() {
 
   // Show compose view and hide other views
@@ -159,7 +139,7 @@ function emailView(id){
         handleReply(recipients, subject, timestamp, sender, body)
       }) 
 
-      //archieved button
+      //archive button
       const arch = document.createElement('button')
       arch.className = "btn btn-sm btn-outline-primary"
 
@@ -168,11 +148,9 @@ function emailView(id){
       } else {
         arch.innerHTML = 'Unarchive'
       }
-      arch.addEventListener('click', function(){
-        handleArchive(id).then(()=>{
-          load_mailbox('archive')
-        })
-
+      arch.addEventListener('click', async function(){
+        await handleArchive(id);
+        load_mailbox('inbox')
       }) 
       
       const hr = document.createElement('hr')
@@ -181,8 +159,8 @@ function emailView(id){
       bod.innerHTML = `${body}`
 
 
-      //if eamil not in sent mailbox:
       emailInMailbox(id, 'sent').then(result => {
+        console.log(result)
         if (result === true){
           prop.append(from, to, sub, time, reply, hr, bod)        
         } else {
@@ -197,25 +175,40 @@ function emailView(id){
 
 
 //helper functions
-function emailInMailbox(id, mailbox){
-  return fetch(`/emails/${mailbox}`)
-    .then(response => response.json())
-    .then(emails => {
-      //emails is an arrany of email objects
-      emails.forEach(element => {
-        const idSent = element.id
-        if(id === idSent){
-          console.log('id is equal do idsetn')
-          return true
-        }
-      })
+async function emailInMailbox(id, mailbox){
 
-      return false
-    })
+  const response = await fetch(`/emails/${mailbox}`)
+  const emails = await response.json()
+
+  let ok;
+  emails.forEach(element => {
+    const idSent = element.id
+    if(id === idSent){
+      ok = 1
+    }
+  })
+
+  if(ok === 1){
+    return true
+  }
+  
+
+  // return fetch(`/emails/${mailbox}`)
+  
+  //   .then(response => response.json())
+  //   .then(emails => {
+  //     //emails is an arrany of email objects
+  //     emails.forEach(element => {
+  //       const idSent = element.id
+  //       if(id === idSent){
+  //         console.log('id is equal do idsetn')
+  //         return true
+  //       }
+  //     })
+  //   })
    
 }
 
-//Done!!
 function handleReply(recipients, subject, timestamp, sender, body){
   compose_email();
 
@@ -225,37 +218,36 @@ function handleReply(recipients, subject, timestamp, sender, body){
   document.querySelector('#compose-body').value = `On ${timestamp}, ${sender} wrote: ${body}` ;
 }
 
-function isArchive(id){
-  return fetch(`/emails/${id}`)
-  .then(response => response.json())
-  .then(email => {
-    const arc = email.archived
-    if(arc === true){
-      return true
-    } else {
-      return false
-    }
-  })
+async function isArchive(id){
+  const response = await fetch(`/emails/${id}`);
+  const email = await response.json();
+  const arc = email.archived;
+  if (arc === true) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
-function handleArchive(id){
-  isArchive(id).then(response => {
-    if(response === true){
-      fetch(`/emails/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-            archived: false
-        })
-      })
-    } else {
-      fetch(`/emails/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-            archived: true
-        })
-      })
+async function handleArchive(id){
+  const response = await isArchive(id)
 
-    }
-  })
+  if(response === true){
+    await fetch(`/emails/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: false
+      })
+    })
+  } else {
+    await fetch(`/emails/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: true
+      })
+    })
+  }
+
 
 }
